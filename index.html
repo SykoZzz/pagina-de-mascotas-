@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Paginada de Mascotas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="text-center mb-4">Lista Paginada de Mascotas</h1>
+        <div id="list" class="row g-3"></div>
+        <nav>
+            <ul class="pagination justify-content-center mt-4" id="pagination"></ul>
+        </nav>
+    </div>
+
+    <script>
+        const razas = [
+            "Labrador Retriever", "Pastor Alemán", "Golden Retriever", "Bulldog",
+            "Poodle", "Beagle", "Chihuahua", "Shih Tzu", "Husky Siberiano", "Boxer"
+        ];
+        const tamanos = ["Pequeño", "Mediano", "Grande"];
+
+        function generarMascotas(n) {
+            const mascotas = [];
+            for (let i = 1; i <= n; i++) {
+                const raza = razas[i % razas.length];
+                const tamano = tamanos[i % tamanos.length];
+                const peso = tamano === "Pequeño" ? (Math.random() * (6 - 2) + 2).toFixed(1) :
+                            tamano === "Mediano" ? (Math.random() * (20 - 7) + 7).toFixed(1) :
+                            (Math.random() * (45 - 21) + 21).toFixed(1);
+                const edad = Math.floor(Math.random() * 13) + 1;
+
+                mascotas.push({
+                    nombre: `${raza} ${i}`,
+                    peso: `${peso} kg`,
+                    tamano: tamano,
+                    edad: `${edad} años`,
+                    categoria: raza
+                });
+            }
+            return mascotas;
+        }
+
+        const data = generarMascotas(120);
+        let paginaActual = 1;
+        const itemsPorPagina = 10;
+
+        function mostrarLista() {
+            const contenedor = document.getElementById("list");
+            contenedor.innerHTML = "";
+
+            const inicio = (paginaActual - 1) * itemsPorPagina;
+            const fin = inicio + itemsPorPagina;
+            const itemsPagina = data.slice(inicio, fin);
+
+            itemsPagina.forEach(item => {
+                const col = document.createElement("div");
+                col.className = "col-md-6 col-lg-4";
+                col.setAttribute("data-category", item.categoria);
+                col.innerHTML = `
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.nombre}</h5>
+                            <p class="card-text mb-1"><strong>Raza:</strong> ${item.categoria}</p>
+                            <p class="card-text mb-1"><strong>Tamaño:</strong> ${item.tamano}</p>
+                            <p class="card-text mb-1"><strong>Peso:</strong> ${item.peso}</p>
+                            <p class="card-text"><strong>Edad:</strong> ${item.edad}</p>
+                        </div>
+                    </div>
+                `;
+                contenedor.appendChild(col);
+            });
+        }
+
+        function mostrarPaginacion() {
+            const contenedor = document.getElementById("pagination");
+            contenedor.innerHTML = "";
+            const totalPaginas = Math.ceil(data.length / itemsPorPagina);
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                const li = document.createElement("li");
+                li.className = `page-item ${i === paginaActual ? "active" : ""}`;
+                const a = document.createElement("a");
+                a.className = "page-link";
+                a.href = "#";
+                a.textContent = i;
+                a.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    paginaActual = i;
+                    mostrarLista();
+                    mostrarPaginacion();
+                });
+                li.appendChild(a);
+                contenedor.appendChild(li);
+            }
+        }
+
+        mostrarLista();
+        mostrarPaginacion();
+    </script>
+</body>
+</html>
